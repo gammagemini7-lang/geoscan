@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#090d16">
-  <title>GeoScan AI Pro | المنظومة الجيوفيزيائية الاستشارية</title>
+  <title>GeoScan AI Pro | المنظومة الجيوفيزيائية</title>
   <style>
     :root {
       --bg: #090d16;
@@ -25,7 +25,6 @@
       background-color: var(--bg);
       color: var(--text);
       line-height: 1.5;
-      -webkit-tap-highlight-color: transparent;
     }
     .container {
       max-width: 480px;
@@ -42,7 +41,6 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 10px rgba(0,229,255,0.1);
     }
     .timer-badge {
       background: rgba(0, 229, 255, 0.15);
@@ -119,9 +117,6 @@
       cursor: pointer;
       margin-top: 6px;
     }
-    .btn:active {
-      opacity: 0.85;
-    }
     .preview-box {
       display: none;
       margin-top: 8px;
@@ -162,10 +157,11 @@
     .admin-link {
       text-align: center;
       margin-top: 24px;
-      font-size: 12px;
-      color: #475569;
+      font-size: 13px;
+      color: var(--accent);
       cursor: pointer;
       text-decoration: underline;
+      padding: 10px;
     }
   </style>
 </head>
@@ -186,7 +182,6 @@
       <p>المنظومة الاستشارية لتحليل وتفسير بيانات أجهزة الكشف</p>
     </header>
 
-    <!-- إقرار الشفافية والصدق العلمي -->
     <div class="transparency-banner">
       ⚖️ <b>ميثاق الشفافية والمصداقية العلمية:</b><br>
       هذه المنظومة هي أداة استشارية ذكية لقراءة المخططات وعزل الشواذ اللونيّة، وليست كاشفاً بديلاً عن المجسات الفيزيائية الميدانية.
@@ -199,10 +194,10 @@
       
       <div class="form-group">
         <label>كود التفعيل (Access Code):</label>
-        <input type="text" id="inputCode" placeholder="مثال: SCAN-8921" style="text-transform:uppercase;" />
+        <input type="text" id="inputCode" placeholder="مثال: TEST30" value="TEST30" style="text-transform:uppercase;" />
       </div>
       
-      <button class="btn" onclick="loginClient()">تفعيل والدخول للمنصة</button>
+      <button class="btn" type="button" onclick="loginClient()">تفعيل والدخول للمنصة</button>
     </div>
 
     <!-- 2. شاشة العمل والتحليل -->
@@ -210,35 +205,18 @@
       <div class="form-group">
         <label>جهاز الكشف المستعمل:</label>
         <select id="deviceType" onchange="checkCustomDevice(this.value)">
-          <optgroup label="أجهزة OKM الألمانية">
-            <option value="OKM Rover C4">OKM Rover C4 / C II</option>
-            <option value="OKM Fusion Professional">OKM Fusion Professional / Light</option>
-            <option value="OKM eXp 4500 / 6000">OKM eXp 4500 / 6000</option>
-            <option value="OKM Gepard GPR 3D">OKM Gepard GPR 3D</option>
-          </optgroup>
-          <optgroup label="أنظمة Nokta">
-            <option value="Nokta Invenio 3D">Nokta Invenio Pro (3D Imaging)</option>
-            <option value="Nokta Impact Pro">Nokta Impact Pro (VLF Multi-Freq)</option>
-            <option value="Nokta Deephunter 3D">Nokta Deephunter 3D</option>
-          </optgroup>
-          <optgroup label="كواشف الحث النبضي العميقة (PI)">
-            <option value="Lorenz Deepmax Z1/Z2">Lorenz Deepmax Z1 / Z2</option>
-            <option value="Ground Exper PRO 3D">DRS Ground Exper PRO</option>
-          </optgroup>
-          <optgroup label="المقاومية بالأوتاد والرادار (ERT / GPR)">
-            <option value="نظام الأوتاد الجيوفيزيائي ERT" selected>جهاز مسح الأوتاد والمقاومية (ERT 3D)</option>
-            <option value="GSSI / Mala GPR">رادار اختراق أرضي صناعي (GSSI / Mala GPR)</option>
-          </optgroup>
-          <optgroup label="أجهزة أخرى">
-            <option value="CUSTOM_DEVICE">➕ جهاز آخر غير موجود في القائمة...</option>
-          </optgroup>
+          <option value="نظام الأوتاد الجيوفيزيائي ERT" selected>جهاز مسح الأوتاد والمقاومية (ERT 3D)</option>
+          <option value="OKM Rover C4">OKM Rover C4 / C II</option>
+          <option value="OKM Fusion">OKM Fusion Professional</option>
+          <option value="Nokta Invenio 3D">Nokta Invenio Pro (3D)</option>
+          <option value="Lorenz Deepmax">Lorenz Deepmax Z1 / Z2</option>
+          <option value="CUSTOM_DEVICE">➕ جهاز آخر غير موجود في القائمة...</option>
         </select>
       </div>
 
-      <!-- خانة الجهاز المخصص -->
       <div class="form-group" id="customDeviceBox" style="display:none;">
         <label>اكتب اسم الجهاز ونوعه يدوياً:</label>
-        <input type="text" id="customDeviceInput" placeholder="مثال: جهاز كهرومغناطيسي يدوي، أو نظام نبضي محلي..." />
+        <input type="text" id="customDeviceInput" placeholder="اكتب اسم الجهاز أو نظامه..." />
       </div>
 
       <div class="form-group">
@@ -246,7 +224,7 @@
         <select id="soilType">
           <option value="صخرية جافة / جبلية">صخرية جافة / جبلية</option>
           <option value="طينية رطبة / فلاحية">طينية رطبة / فلاحية</option>
-          <option value="رملية / سبخة بحرية">رملية / سبخة</option>
+          <option value="رملية / سبخة">رملية / سبخة</option>
         </select>
       </div>
 
@@ -260,10 +238,10 @@
 
       <div class="form-group">
         <label>الأرقام والقراءات الميدانية المرافقة:</label>
-        <textarea id="notes" rows="3" placeholder="مثال: عمق الإشارة المقدر، قيم الأوم، أو نوع التردد المستخدم..."></textarea>
+        <textarea id="notes" rows="3" placeholder="مثال: عمق الإشارة المقدر، قيم الأوم..."></textarea>
       </div>
 
-      <button class="btn" id="analyzeBtn" onclick="runAnalysis()">تحليل الإشارة بالذكاء الاصطناعي</button>
+      <button class="btn" type="button" onclick="runAnalysis()">تحليل الإشارة بالذكاء الاصطناعي</button>
 
       <div class="result-card" id="resultCard">
         <h3 id="resultTitle">📊 التقرير الجيوفيزيائي الاستشاري:</h3>
@@ -271,35 +249,45 @@
       </div>
     </div>
 
-    <!-- 3. لوحة تحكم الأدمن -->
-    <div class="admin-link" onclick="toggleAdmin()">⚙️ إدارة وتوليد الأكواد (خاص بالمدير)</div>
+    <!-- 3. لوحة تحكم الأدمن المباشرة -->
+    <div class="admin-link" onclick="toggleAdmin()">⚙️ فتح إعدادات المدير والأكواد</div>
 
     <div class="card" id="adminCard" style="display:none; margin-top:14px; border-color:var(--accent);">
-      <h3 style="margin-top:0; font-size:15px; color:var(--accent);">🛠️ لوحة تحكم المدير</h3>
+      <h3 style="margin-top:0; font-size:15px; color:var(--accent);">🛠️ إعدادات المدير</h3>
       
-      <div class="form-group">
-        <label>مفتاح Google AI Studio API (Gemini):</label>
-        <input type="password" id="apiKeyInput" placeholder="أدخل مفتاح AI Studio للتحليل المباشر" />
-        <button class="btn" style="padding:7px; font-size:12px; margin-top:4px;" onclick="saveApiKey()">حفظ مفتاح API</button>
+      <div id="adminAuthBox">
+        <div class="form-group">
+          <label>رمز الدخول للمدير:</label>
+          <input type="password" id="adminPassInput" placeholder="أدخل الرمز (2026)" />
+        </div>
+        <button class="btn" type="button" onclick="checkAdminPass()">دخول للإعدادات</button>
       </div>
 
-      <hr style="border:0; border-top:1px solid var(--border); margin:12px 0;">
+      <div id="adminPanelBox" style="display:none;">
+        <div class="form-group">
+          <label>مفتاح Google AI Studio API:</label>
+          <input type="text" id="apiKeyInput" placeholder="الصق المفتاح هنا" />
+          <button class="btn" type="button" style="padding:8px; font-size:13px; margin-top:5px;" onclick="saveApiKey()">حفظ مفتاح API</button>
+        </div>
 
-      <div class="form-group">
-        <label>مدة الرصيد المطلوب:</label>
-        <select id="durationSelect">
-          <option value="1800">30 دقيقة (1800 ثانية)</option>
-          <option value="3600">1 ساعة كاملة (3600 ثانية)</option>
-          <option value="18000">5 ساعات (استخدام مقسم)</option>
-          <option value="108000">30 ساعة (استخدام مقسم على شهر)</option>
-        </select>
-      </div>
+        <hr style="border:0; border-top:1px solid var(--border); margin:12px 0;">
 
-      <button class="btn" onclick="generateNewCode()">توليد كود جديد الآن</button>
+        <div class="form-group">
+          <label>مدة الرصيد للكود الجديد:</label>
+          <select id="durationSelect">
+            <option value="1800">30 دقيقة</option>
+            <option value="3600">1 ساعة</option>
+            <option value="18000">5 ساعات</option>
+            <option value="108000">30 ساعة</option>
+          </select>
+        </div>
 
-      <div id="generatedOutput" style="display:none; margin-top:12px; background:#0b1120; padding:10px; border-radius:8px; border:1px dashed var(--accent); font-size:13px;">
-        <div>الكود الجاهز: <b id="newCodeVal" style="color:var(--accent);"></b></div>
-        <button class="btn" style="padding:6px; font-size:12px; margin-top:8px;" onclick="copyCode()">نسخ الكود وإرساله للحريف</button>
+        <button class="btn" type="button" onclick="generateNewCode()">توليد كود جديد الآن</button>
+
+        <div id="generatedOutput" style="display:none; margin-top:12px; background:#0b1120; padding:10px; border-radius:8px; border:1px dashed var(--accent); font-size:13px;">
+          <div>الكود الجديد: <b id="newCodeVal" style="color:var(--accent);"></b></div>
+          <button class="btn" type="button" style="padding:6px; font-size:12px; margin-top:8px;" onclick="copyCode()">نسخ الكود</button>
+        </div>
       </div>
     </div>
 
@@ -307,13 +295,18 @@
 
   <script>
     function getCodesDB() {
-      const data = localStorage.getItem('GEOSCAN_CODES');
-      if (data) return JSON.parse(data);
-      const initial = {
-        "TEST30": { remainingSeconds: 1800, active: true }
-      };
-      localStorage.setItem('GEOSCAN_CODES', JSON.stringify(initial));
-      return initial;
+      let db = {};
+      try {
+        const data = localStorage.getItem('GEOSCAN_CODES');
+        if (data) db = JSON.parse(data);
+      } catch(e) {}
+      
+      // ضمان وجود كود TEST30 دائماً
+      if (!db["TEST30"] || db["TEST30"].remainingSeconds <= 0) {
+        db["TEST30"] = { remainingSeconds: 1800, active: true };
+        localStorage.setItem('GEOSCAN_CODES', JSON.stringify(db));
+      }
+      return db;
     }
 
     function saveCodesDB(db) {
@@ -325,12 +318,7 @@
     let base64ImgData = null;
 
     function checkCustomDevice(val) {
-      const box = document.getElementById('customDeviceBox');
-      if (val === 'CUSTOM_DEVICE') {
-        box.style.display = 'block';
-      } else {
-        box.style.display = 'none';
-      }
+      document.getElementById('customDeviceBox').style.display = (val === 'CUSTOM_DEVICE') ? 'block' : 'none';
     }
 
     function loginClient() {
@@ -338,12 +326,7 @@
       const db = getCodesDB();
 
       if (!code || !db[code]) {
-        alert("الكود المدخل غير صالح أو غير موجود!");
-        return;
-      }
-
-      if (db[code].remainingSeconds <= 0) {
-        alert("هذا الكود استنفد رصيده بالكامل!");
+        alert("الكود غير موجود! الكود التجريبي هو: TEST30");
         return;
       }
 
@@ -381,7 +364,7 @@
           updateTimerDisplay();
         } else {
           stopTimer();
-          alert("انتهى رصيد الوقت المخصص لهذا الكود!");
+          alert("انتهى رصيد هذا الكود!");
           logoutClient();
         }
       }, 1000);
@@ -390,14 +373,6 @@
     function stopTimer() {
       if (timerInterval) clearInterval(timerInterval);
     }
-
-    document.addEventListener("visibilitychange", function() {
-      if (document.hidden) {
-        stopTimer();
-      } else {
-        if (activeSession) startTimer();
-      }
-    });
 
     function updateTimerDisplay() {
       const db = getCodesDB();
@@ -425,6 +400,23 @@
       }
     }
 
+    function toggleAdmin() {
+      const p = document.getElementById('adminCard');
+      p.style.display = (p.style.display === 'none' || p.style.display === '') ? 'block' : 'none';
+    }
+
+    function checkAdminPass() {
+      const pass = document.getElementById('adminPassInput').value.trim();
+      if (pass === "2026") {
+        document.getElementById('adminAuthBox').style.display = 'none';
+        document.getElementById('adminPanelBox').style.display = 'block';
+        const savedKey = localStorage.getItem('GEOSCAN_API_KEY');
+        if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+      } else {
+        alert("رمز المدير غير صحيح! الرمز هو: 2026");
+      }
+    }
+
     function saveApiKey() {
       const key = document.getElementById('apiKeyInput').value.trim();
       if (key) {
@@ -433,11 +425,28 @@
       }
     }
 
+    function generateNewCode() {
+      const dur = parseInt(document.getElementById('durationSelect').value);
+      const code = "SCAN-" + Math.floor(1000 + Math.random() * 9000);
+
+      const db = getCodesDB();
+      db[code] = { remainingSeconds: dur, active: true };
+      saveCodesDB(db);
+
+      document.getElementById('newCodeVal').innerText = code;
+      document.getElementById('generatedOutput').style.display = 'block';
+    }
+
+    function copyCode() {
+      const code = document.getElementById('newCodeVal').innerText;
+      navigator.clipboard.writeText(code);
+      alert("تم نسخ الكود: " + code);
+    }
+
     async function runAnalysis() {
       let device = document.getElementById('deviceType').value;
       if (device === 'CUSTOM_DEVICE') {
-        const customName = document.getElementById('customDeviceInput').value.trim();
-        device = customName ? customName : "جهاز مخصص غير محدد";
+        device = document.getElementById('customDeviceInput').value.trim() || "جهاز مخصص";
       }
 
       const soil = document.getElementById('soilType').value;
@@ -452,16 +461,70 @@
 
       if (!apiKey) {
         resultCard.className = "result-card warning-mode";
-        resultTitle.innerText = "⚠️ لم يتم إدخال مفتاح API:";
-        resultBody.innerHTML = "يرجى فتح لوحة المدير وإدخال المفتاح ثم الضغط على زر (حفظ مفتاح API).";
+        resultTitle.innerText = "⚠️ يرجى حفظ مفتاح الـ API أولاً:";
+        resultBody.innerHTML = "افتح (إعدادات المدير) بالأسفل واحفظ مفتاح الذكاء الاصطناعي.";
         return;
       }
 
       if (!base64ImgData) {
         resultCard.className = "result-card warning-mode";
         resultTitle.innerText = "⚠️ لم يتم اختيار صورة:";
-        resultBody.innerHTML = "يرجى رفع صورة شاشة الجهاز أو المخطط البياني أولاً قبل بدء الفحص.";
+        resultBody.innerHTML = "يرجى اختيار صورة للمخطط البياني أولاً.";
         return;
       }
 
-      resultTitle.innerText
+      resultTitle.innerText = "⏳ جاري الفحص الجيوفيزيائي الفعلي...";
+      resultBody.innerHTML = "جاري الاتصال بنموذج Gemini 2.5 Flash لفحص الصورة بأمانة علمية...";
+
+      try {
+        const rawBase64 = base64ImgData.split(',')[1];
+        const mimeType = base64ImgData.split(';')[0].split(':')[1];
+
+        const promptText = `أنت خبير جيوفيزيائي ميداني محترف، تعمل بمبدأ الصدق التام والأمانة العلمية الصارمة بدون أي تضليل أو مبالغة.
+معطيات المسح:
+- الجهاز المستخدم: ${device}.
+- طبيعة التربة: ${soil}.
+- ملاحظات الحقل: ${notes || "لا توجد ملاحظات إضافية"}.
+
+التعليمات الصارمة:
+1. تحقق أولاً من الصورة المرفقة: إذا كانت لقطة شاشة عادية وليست مخطط مسح أرضي أو شاشة جهاز كشف، اذكر: "⚠️ تنبيه صادق: الصورة المرفقة ليست مخطط كشف صالح للتحليل".
+2. إذا كانت لمخطط كشف حقيقي: حلل الألوان والتباين بدقة، وحدد الاحتمالات (فراغ، معدن، صخور ممغنطة)، وقدم توصية المسح المتقاطع.`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: promptText },
+                { inline_data: { mime_type: mimeType, data: rawBase64 } }
+              ]
+            }]
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          resultCard.className = "result-card warning-mode";
+          resultTitle.innerText = "❌ خطأ من الخادم:";
+          resultBody.innerHTML = data.error.message || JSON.stringify(data.error);
+          return;
+        }
+
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+          resultCard.className = "result-card";
+          resultTitle.innerText = "📊 التقرير الجيوفيزيائي الاستشاري الصادق:";
+          resultBody.innerHTML = data.candidates[0].content.parts[0].text;
+          return;
+        }
+
+      } catch (err) {
+        resultCard.className = "result-card warning-mode";
+        resultTitle.innerText = "⚠️ خطأ في الاتصال:";
+        resultBody.innerHTML = err.message;
+      }
+    }
+  </script>
+</body>
+</html>

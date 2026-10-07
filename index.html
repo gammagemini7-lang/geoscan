@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#090d16">
   <title>GeoScan AI Pro | المنظومة الجيوفيزيائية الاستشارية</title>
+  <link rel="manifest" href="./manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js');
+      });
+    }
+  </script>
   <style>
     :root {
       --bg: #090d16;
@@ -235,7 +243,7 @@
         </select>
       </div>
 
-      <!-- خانة تظهر فقط إذا اختار جهازاً غير موجود -->
+      <!-- خانة الجهاز المخصص -->
       <div class="form-group" id="customDeviceBox" style="display:none;">
         <label>اكتب اسم الجهاز ونوعه يدوياً:</label>
         <input type="text" id="customDeviceInput" placeholder="مثال: جهاز كهرومغناطيسي يدوي، أو نظام نبضي محلي..." />
@@ -266,7 +274,7 @@
       <button class="btn" id="analyzeBtn" onclick="runAnalysis()">تحليل الإشارة بالذكاء الاصطناعي</button>
 
       <div class="result-card" id="resultCard">
-        <h3 id="resultTitle">📊 التقرير الجيوفيزيائي الصادق:</h3>
+        <h3 id="resultTitle">📊 التقرير الجيوفيزيائي الاستشاري:</h3>
         <div class="result-body" id="resultBody"></div>
       </div>
     </div>
@@ -433,7 +441,6 @@
       }
     }
 
-    // فحص وتحليل الإشارة
     async function runAnalysis() {
       let device = document.getElementById('deviceType').value;
       if (device === 'CUSTOM_DEVICE') {
@@ -450,15 +457,29 @@
 
       resultCard.className = "result-card";
       resultCard.style.display = 'block';
-      resultTitle.innerText = "⏳ جاري الفحص الجيوفيزيائي الصادق...";
-      resultBody.innerHTML = "جاري الاتصال بنموذج الذكاء الاصطناعي لفحص المخطط بدقة وأمانة علمية...";
 
-      if (apiKey && base64ImgData) {
-        try {
-          const rawBase64 = base64ImgData.split(',')[1];
-          const mimeType = base64ImgData.split(';')[0].split(':')[1];
+      if (!apiKey) {
+        resultCard.className = "result-card warning-mode";
+        resultTitle.innerText = "⚠️ لم يتم إدخال مفتاح API:";
+        resultBody.innerHTML = "يرجى فتح لوحة المدير وإدخال المفتاح ثم الضغط على زر (حفظ مفتاح API).";
+        return;
+      }
 
-          const promptText = `أنت خبير جيوفيزيائي ميداني محترف، تعمل بمبدأ الصدق التام والأمانة العلمية الصارمة بدون أي تضليل أو مبالغة.
+      if (!base64ImgData) {
+        resultCard.className = "result-card warning-mode";
+        resultTitle.innerText = "⚠️ لم يتم اختيار صورة:";
+        resultBody.innerHTML = "يرجى رفع صورة شاشة الجهاز أو المخطط البياني أولاً قبل بدء الفحص.";
+        return;
+      }
+
+      resultTitle.innerText = "⏳ جاري الفحص الجيوفيزيائي الفعلي...";
+      resultBody.innerHTML = "جاري الاتصال بنموذج Gemini لفحص المخطط بدقة وأمانة علمية...";
+
+      try {
+        const rawBase64 = base64ImgData.split(',')[1];
+        const mimeType = base64ImgData.split(';')[0].split(':')[1];
+
+        const promptText = `أنت خبير جيوفيزيائي ميداني محترف، تعمل بمبدأ الصدق التام والأمانة العلمية الصارمة بدون أي تضليل أو مبالغة.
 معطيات المسح:
 - الجهاز المستخدم: ${device}.
 - طبيعة التربة: ${soil}.
@@ -472,37 +493,40 @@
 - وضّح الاحتمالات العلمية بأمانة (فراغ، صخور متمعدنة، رطوبة، أو شذوذ معدني).
 - أرفق التوصية الميدانية الصحيحة للتأكد قبل بذل أي مجهود حفر.`;
 
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{
-                parts: [
-                  { text: promptText },
-                  { inline_data: { mime_type: mimeType, data: rawBase64 } }
-                ]
-              }]
-            })
-          });
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: promptText },
+                { inline_data: { mime_type: mimeType, data: rawBase64 } }
+              ]
+            }]
+          })
+        });
 
-          const data = await response.json();
-          if (data.candidates && data.candidates[0].content.parts[0].text) {
-            const reply = data.candidates[0].content.parts[0].text;
-            resultTitle.innerText = "📊 التقرير الجيوفيزيائي الاستشاري:";
-            resultBody.innerHTML = reply;
-            return;
-          }
-        } catch (e) {
-          console.error("API error", e);
+        const data = await response.json();
+
+        if (data.error) {
+          resultCard.className = "result-card warning-mode";
+          resultTitle.innerText = "❌ خطأ في مفتاح API أو الاتصال:";
+          resultBody.innerHTML = `رسالة من الخادم: ${data.error.message || JSON.stringify(data.error)}`;
+          return;
         }
-      }
 
-      // في حال عدم توفر مفتاح أو صورة صالحة
-      setTimeout(() => {
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+          resultCard.className = "result-card";
+          resultTitle.innerText = "📊 التقرير الجيوفيزيائي الاستشاري الصادق:";
+          resultBody.innerHTML = data.candidates[0].content.parts[0].text;
+          return;
+        }
+
+      } catch (err) {
         resultCard.className = "result-card warning-mode";
-        resultTitle.innerText = "⚠️ تنبيه المصداقية:";
-        resultBody.innerHTML = `يرجى إدخال مفتاح الذكاء الاصطناعي ورفع صورة واضحة لشاشة الجهاز ليتمكن النظام من تقديم استشارة جيوفيزيائية صادقة ومبنية على فحص حقيقي للصورة المرفقة.`;
-      }, 1000);
+        resultTitle.innerText = "⚠️ خطأ في المعالجة:";
+        resultBody.innerHTML = "تعذر إتمام التحليل: " + err.message;
+      }
     }
 
     function toggleAdmin() {

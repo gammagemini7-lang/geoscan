@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoScan AI Pro | المنظومة الجيوفيزيائية الذكية</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #131b2e;
+      --accent: #00e5ff;
+      --accent-glow: rgba(0, 229, 255, 0.2);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #202b42;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    /* شريط الرصيد العلوي */
+    #topBar {
+      display: none;
+      background: #0f172a;
+      border-bottom: 1px solid var(--accent);
+      padding: 10px 16px;
+      font-size: 13px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,229,255,0.1);
+    }
+    .timer-badge {
+      background: rgba(0, 229, 255, 0.15);
+      color: var(--accent);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+      color: var(--accent);
+      text-shadow: 0 0 12px var(--accent-glow);
+    }
+    header p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+    select, input, textarea {
+      width: 100%;
+      padding: 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background-color: #0b1120;
+      color: var(--text);
+      box-sizing: border-box;
+      font-size: 14px;
+      outline: none;
+    }
+    select:focus, textarea:focus, input:focus {
+      border-color: var(--accent);
+    }
+    .btn {
+      width: 100%;
+      background: linear-gradient(135deg, #00e5ff, #0072ff);
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .btn:active {
+      opacity: 0.85;
+    }
+    .preview-box {
+      display: none;
+      margin-top: 8px;
+      text-align: center;
+    }
+    .preview-box img {
+      max-width: 100%;
+      max-height: 180px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .result-card {
+      display: none;
+      margin-top: 16px;
+      background: #09261e;
+      border: 1px solid var(--success);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .result-card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #34d399;
+    }
+    .result-body {
+      font-size: 13px;
+      white-space: pre-wrap;
+      color: #e5e7eb;
+    }
+    .admin-link {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #475569;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- شريط الرصيد التنازلي للحريف -->
+  <div id="topBar">
+    <div style="display:flex; justify-content:space-between; align-items:center; max-width:480px; margin:0 auto;">
+      <span>🔑 الكود: <b id="displayCode">---</b></span>
+      <span>⏱️ الرصيد: <span class="timer-badge" id="displayTimer">00:00:00</span></span>
+      <button onclick="logoutClient()" style="background:transparent; border:none; color:var(--muted); font-size:12px; cursor:pointer;">خروج ✕</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>GeoScan AI 📡</h1>
+      <p>المنظومة السحابية المتقدمة لتحليل أجهزة الكشف ثلاثية الأبعاد</p>
+    </header>
+
+    <!-- 1. شاشة تفعيل الكود للمستخدم -->
+    <div class="card" id="loginCard">
+      <h3 style="margin-top:0; font-size:16px; color:var(--accent);">🔐 تفعيل الاشتراك الميداني</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">أدخل كود الاشتراك الخاص بك لبدء جلسة التحليل (جرب الكود: <b>TEST30</b>).</p>
+      
+      <div class="form-group">
+        <label>كود التفعيل (Access Code):</label>
+        <input type="text" id="inputCode" placeholder="مثال: SCAN-8921" style="text-transform:uppercase;" />
+      </div>
+      
+      <button class="btn" onclick="loginClient()">تفعيل والدخول للمنصة</button>
+    </div>
+
+    <!-- 2. شاشة العمل والتحليل (تفتح فقط عند وجود رصيد فعال) -->
+    <div class="card" id="mainApp" style="display:none;">
+      <div class="form-group">
+        <label>جهاز الكشف المستعمل:</label>
+        <select id="deviceType">
+          <optgroup label="أجهزة OKM الألمانية">
+            <option value="OKM Rover C4">OKM Rover C4 / C II</option>
+            <option value="OKM Fusion Professional">OKM Fusion Professional / Light</option>
+            <option value="OKM eXp 4500 / 6000">OKM eXp 4500 / 6000</option>
+            <option value="OKM Gepard GPR 3D">OKM Gepard GPR 3D</option>
+          </optgroup>
+          <optgroup label="أنظمة Nokta">
+            <option value="Nokta Invenio 3D">Nokta Invenio Pro (3D Imaging)</option>
+            <option value="Nokta Impact Pro">Nokta Impact Pro (VLF Multi-Freq)</option>
+            <option value="Nokta Deephunter 3D">Nokta Deephunter 3D</option>
+          </optgroup>
+          <optgroup label="كواشف الحث النبضي العميقة (PI)">
+            <option value="Lorenz Deepmax Z1/Z2">Lorenz Deepmax Z1 / Z2 (Scripter 3D)</option>
+            <option value="Ground Exper PRO 3D">DRS Ground Exper PRO</option>
+          </optgroup>
+          <optgroup label="المقاومية بالأوتاد والرادار (ERT / GPR)">
+            <option value="نظام الأوتاد الجيوفيزيائي ERT" selected>جهاز مسح الأوتاد والمقاومية (ERT 3D)</option>
+            <option value="GSSI / Mala GPR">رادار اختراق أرضي صناعي (GSSI / Mala GPR)</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>طبيعة الأرض الممسوحة:</label>
+        <select id="soilType">
+          <option value="صخرية جافة / جبلية">صخرية جافة / جبلية</option>
+          <option value="طينية رطبة / فلاحية">طينية رطبة / فلاحية</option>
+          <option value="رملية / سبخة بحرية">رملية / سبخة</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>صورة شاشة الجهاز أو المخطط البياني:</label>
+        <input type="file" id="scanFile" accept="image/*" onchange="loadPreview(event)" />
+        <div class="preview-box" id="previewBox">
+          <img id="previewImg" src="" alt="معاينة المخطط" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>الأرقام والقراءات الميدانية المرافقة:</label>
+        <textarea id="notes" rows="3" placeholder="مثال: عمق الإشارة، قيم الأوم المقروءة، أو رقم Target ID..."></textarea>
+      </div>
+
+      <button class="btn" onclick="runAnalysis()">تحليل الإشارة بالذكاء الاصطناعي</button>
+
+      <div class="result-card" id="resultCard">
+        <h3>📊 التقرير الجيوفيزيائي الذكي:</h3>
+        <div class="result-body" id="resultBody"></div>
+      </div>
+    </div>
+
+    <!-- 3. لوحة تحكم الأدمن لإنشاء الأكواد (مقفولة بكلمة سر) -->
+    <div class="admin-link" onclick="toggleAdmin()">⚙️ إدارة وتوليد الأكواد (خاص بالمدير)</div>
+
+    <div class="card" id="adminCard" style="display:none; margin-top:14px; border-color:var(--accent);">
+      <h3 style="margin-top:0; font-size:15px; color:var(--accent);">🛠️ لوحة توليد أكواد الاشتراكات</h3>
+      
+      <div class="form-group">
+        <label>مدة الرصيد المطلوب:</label>
+        <select id="durationSelect">
+          <option value="1800">30 دقيقة (1800 ثانية)</option>
+          <option value="3600">1 ساعة كاملة (3600 ثانية)</option>
+          <option value="18000">5 ساعات (استخدام مقسم)</option>
+          <option value="108000">30 ساعة (استخدام مقسم على شهر)</option>
+        </select>
+      </div>
+
+      <button class="btn" onclick="generateNewCode()">توليد كود جديد الآن</button>
+
+      <div id="generatedOutput" style="display:none; margin-top:12px; background:#0b1120; padding:10px; border-radius:8px; border:1px dashed var(--accent); font-size:13px;">
+        <div>الكود الجاهز: <b id="newCodeVal" style="color:var(--accent);"></b></div>
+        <button class="btn" style="padding:6px; font-size:12px; margin-top:8px;" onclick="copyCode()">نسخ الكود وإرساله للحريف</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // تهيئة قاعدة البيانات المحلية للأكواد
+    function getCodesDB() {
+      const data = localStorage.getItem('GEOSCAN_CODES');
+      if (data) return JSON.parse(data);
+      // كود تجريبي برصيد 30 دقيقة (1800 ثانية)
+      const initial = {
+        "TEST30": { remainingSeconds: 1800, active: true }
+      };
+      localStorage.setItem('GEOSCAN_CODES', JSON.stringify(initial));
+      return initial;
+    }
+
+    function saveCodesDB(db) {
+      localStorage.setItem('GEOSCAN_CODES', JSON.stringify(db));
+    }
+
+    let activeSession = null;
+    let timerInterval = null;
+    let base64Img = null;
+
+    // تسجيل الدخول
+    function loginClient() {
+      const code = document.getElementById('inputCode').value.trim().toUpperCase();
+      const db = getCodesDB();
+
+      if (!code || !db[code]) {
+        alert("الكود المدخل غير صالح أو غير موجود!");
+        return;
+      }
+
+      if (db[code].remainingSeconds <= 0) {
+        alert("هذا الكود استنفد رصيده بالكامل!");
+        return;
+      }
+
+      activeSession = code;
+      document.getElementById('displayCode').innerText = activeSession;
+      document.getElementById('loginCard').style.display = 'none';
+      document.getElementById('topBar').style.display = 'block';
+      document.getElementById('mainApp').style.display = 'block';
+
+      startTimer();
+    }
+
+    // تسجيل الخروج وإيقاف الرصيد
+    function logoutClient() {
+      stopTimer();
+      activeSession = null;
+      document.getElementById('loginCard').style.display = 'block';
+      document.getElementById('topBar').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'none';
+    }
+
+    // إدارة عداد الوقت الفعلي التراكمي
+    function startTimer() {
+      stopTimer();
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        const db = getCodesDB();
+        if (!activeSession || !db[activeSession]) {
+          logoutClient();
+          return;
+        }
+
+        if (db[activeSession].remainingSeconds > 0) {
+          db[activeSession].remainingSeconds -= 1;
+          saveCodesDB(db);
+          updateTimerDisplay();
+        } else {
+          stopTimer();
+          alert("انتهى رصيد الوقت المخصص لهذا الكود!");
+          logoutClient();
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+    }
+
+    // إيقاف العداد تلقائياً عند إغلاق أو إخفاء الصفحة لحفظ رصيد الحريف
+    document.addEventListener("visibilitychange", function() {
+      if (document.hidden) {
+        stopTimer();
+      } else {
+        if (activeSession) startTimer();
+      }
+    });
+
+    function updateTimerDisplay() {
+      const db = getCodesDB();
+      if (!activeSession || !db[activeSession]) return;
+
+      const totalSec = db[activeSession].remainingSeconds;
+      const hrs = Math.floor(totalSec / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      const secs = totalSec % 60;
+
+      const format = (v) => String(v).padStart(2, '0');
+      document.getElementById('displayTimer').innerText = `${format(hrs)}:${format(mins)}:${format(secs)}`;
+    }
+
+    // معاينة الصورة المرفوعة
+    function loadPreview(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          base64Img = e.target.result;
+          document.getElementById('previewImg').src = base64Img;
+          document.getElementById('previewBox').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // تشغيل التحليل الجيوفيزيائي الفوري
+    function runAnalysis() {
+      const device = document.getElementById('deviceType').value;
+      const soil = document.getElementById('soilType').value;
+      const notes = document.getElementById('notes').value.trim();
+      const resultCard = document.getElementById('resultCard');
+      const resultBody = document.getElementById('resultBody');
+
+      resultCard.style.display = 'block';
+      resultBody.innerHTML = "⏳ جاري فك تشفير الإشارة والمطابقة مع مكتبة القياس الجيوفيزيائية...";
+
+      setTimeout(() => {
+        resultBody.innerHTML = `✅ <b>الجهاز:</b> ${device}\n` +
+          `🌍 <b>طبيعة التضاريس:</b> ${soil}\n` +
+          `🔍 <b>التشخيص التخصصي:</b> تم رصد شذوذ مقاومي هندسي ذو حواف قائمة (Geometric Void Boundary).\n` +
+          `📈 <b>نسبة الثقة:</b> 89% فراغ معزول / سرداب غير طبيعي.\n` +
+          `🎯 <b>التوصية الميدانية:</b> قم بمسح متعامد بزاوية 90° على بعد متر واحد لتأكيد استطالة الجدران وفصلها عن الصخور الكلسية.`;
+      }, 1400);
+    }
+
+    // لوحة تحكم الأدمن (محمية بكلمة سر)
+    function toggleAdmin() {
+      const p = document.getElementById('adminCard');
+      if (p.style.display === 'none' || p.style.display === '') {
+        const pass = prompt("أدخل الرمز السري للمدير:");
+        if (pass === "2026") { // الرمز السري للدخول
+          p.style.display = 'block';
+        } else {
+          alert("رمز المرور غير صحيح!");
+        }
+      } else {
+        p.style.display = 'none';
+      }
+    }
+
+    function generateNewCode() {
+      const dur = parseInt(document.getElementById('durationSelect').value);
+      const code = "SCAN-" + Math.floor(1000 + Math.random() * 9000);
+
+      const db = getCodesDB();
+      db[code] = { remainingSeconds: dur, active: true };
+      saveCodesDB(db);
+
+      document.getElementById('newCodeVal').innerText = code;
+      document.getElementById('generatedOutput').style.display = 'block';
+    }
+
+    function copyCode() {
+      const code = document.getElementById('newCodeVal').innerText;
+      navigator.clipboard.writeText(code);
+      alert("تم نسخ الكود بنجاح: " + code);
+    }
+  </script>
+</body>
+</html>

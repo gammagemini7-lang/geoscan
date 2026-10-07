@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#090d16">
-  <title>GeoScan AI Pro | المنظومة الجيوفيزيائية الذكية</title>
+  <title>GeoScan AI Pro | المنظومة الجيوفيزيائية الاستشارية</title>
   <style>
     :root {
       --bg: #090d16;
@@ -16,6 +16,7 @@
       --border: #202b42;
       --danger: #ef4444;
       --success: #10b981;
+      --warning: #f59e0b;
     }
     body {
       margin: 0;
@@ -60,7 +61,7 @@
     }
     header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     header h1 {
       margin: 0;
@@ -72,6 +73,16 @@
       margin: 6px 0 0;
       font-size: 13px;
       color: var(--muted);
+    }
+    .transparency-banner {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--warning);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #fbbf24;
+      margin-bottom: 16px;
+      line-height: 1.6;
     }
     .form-group {
       margin-bottom: 14px;
@@ -130,10 +141,17 @@
       border-radius: 10px;
       padding: 14px;
     }
+    .result-card.warning-mode {
+      background: #261609;
+      border-color: var(--warning);
+    }
     .result-card h3 {
       margin: 0 0 8px;
       font-size: 15px;
       color: #34d399;
+    }
+    .result-card.warning-mode h3 {
+      color: #fbbf24;
     }
     .result-body {
       font-size: 13px;
@@ -153,7 +171,7 @@
 </head>
 <body>
 
-  <!-- شريط الرصيد التنازلي للحريف -->
+  <!-- شريط الرصيد التنازلي -->
   <div id="topBar">
     <div style="display:flex; justify-content:space-between; align-items:center; max-width:480px; margin:0 auto;">
       <span>🔑 الكود: <b id="displayCode">---</b></span>
@@ -165,13 +183,19 @@
   <div class="container">
     <header>
       <h1>GeoScan AI 📡</h1>
-      <p>المنظومة السحابية المتقدمة لتحليل أجهزة الكشف ثلاثية الأبعاد</p>
+      <p>المنظومة الاستشارية لتحليل وتفسير بيانات أجهزة الكشف</p>
     </header>
+
+    <!-- إقرار الشفافية والصدق العلمي -->
+    <div class="transparency-banner">
+      ⚖️ <b>ميثاق الشفافية والمصداقية العلمية:</b><br>
+      هذه المنظومة هي أداة استشارية ذكية لقراءة المخططات وعزل الشواذ اللونيّة، وليست كاشفاً بديلاً عن المجسات الفيزيائية الميدانية. القرارات النهائية تخضع دائماً لطبيعة الأرض والمسح المتقاطع.
+    </div>
 
     <!-- 1. شاشة تفعيل الكود للمستخدم -->
     <div class="card" id="loginCard">
       <h3 style="margin-top:0; font-size:16px; color:var(--accent);">🔐 تفعيل الاشتراك الميداني</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">أدخل كود الاشتراك الخاص بك لبدء جلسة التحليل (كود تجريبي: <b>TEST30</b>).</p>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">أدخل كود الاشتراك الخاص بك لبدء جلسة الاستشارة الميدانية (كود تجريبي: <b>TEST30</b>).</p>
       
       <div class="form-group">
         <label>كود التفعيل (Access Code):</label>
@@ -185,7 +209,7 @@
     <div class="card" id="mainApp" style="display:none;">
       <div class="form-group">
         <label>جهاز الكشف المستعمل:</label>
-        <select id="deviceType">
+        <select id="deviceType" onchange="checkCustomDevice(this.value)">
           <optgroup label="أجهزة OKM الألمانية">
             <option value="OKM Rover C4">OKM Rover C4 / C II</option>
             <option value="OKM Fusion Professional">OKM Fusion Professional / Light</option>
@@ -198,14 +222,23 @@
             <option value="Nokta Deephunter 3D">Nokta Deephunter 3D</option>
           </optgroup>
           <optgroup label="كواشف الحث النبضي العميقة (PI)">
-            <option value="Lorenz Deepmax Z1/Z2">Lorenz Deepmax Z1 / Z2 (Scripter 3D)</option>
+            <option value="Lorenz Deepmax Z1/Z2">Lorenz Deepmax Z1 / Z2</option>
             <option value="Ground Exper PRO 3D">DRS Ground Exper PRO</option>
           </optgroup>
           <optgroup label="المقاومية بالأوتاد والرادار (ERT / GPR)">
             <option value="نظام الأوتاد الجيوفيزيائي ERT" selected>جهاز مسح الأوتاد والمقاومية (ERT 3D)</option>
             <option value="GSSI / Mala GPR">رادار اختراق أرضي صناعي (GSSI / Mala GPR)</option>
           </optgroup>
+          <optgroup label="أجهزة أخرى">
+            <option value="CUSTOM_DEVICE">➕ جهاز آخر غير موجود في القائمة...</option>
+          </optgroup>
         </select>
+      </div>
+
+      <!-- خانة تظهر فقط إذا اختار جهازاً غير موجود -->
+      <div class="form-group" id="customDeviceBox" style="display:none;">
+        <label>اكتب اسم الجهاز ونوعه يدوياً:</label>
+        <input type="text" id="customDeviceInput" placeholder="مثال: جهاز كهرومغناطيسي يدوي، أو نظام نبضي محلي..." />
       </div>
 
       <div class="form-group">
@@ -227,18 +260,18 @@
 
       <div class="form-group">
         <label>الأرقام والقراءات الميدانية المرافقة:</label>
-        <textarea id="notes" rows="3" placeholder="مثال: عمق الإشارة، قيم الأوم المقروءة، أو رقم Target ID..."></textarea>
+        <textarea id="notes" rows="3" placeholder="مثال: عمق الإشارة المقدر، قيم الأوم، أو نوع التردد المستخدم..."></textarea>
       </div>
 
       <button class="btn" id="analyzeBtn" onclick="runAnalysis()">تحليل الإشارة بالذكاء الاصطناعي</button>
 
       <div class="result-card" id="resultCard">
-        <h3>📊 التقرير الجيوفيزيائي الذكي:</h3>
+        <h3 id="resultTitle">📊 التقرير الجيوفيزيائي الصادق:</h3>
         <div class="result-body" id="resultBody"></div>
       </div>
     </div>
 
-    <!-- 3. لوحة تحكم الأدمن (مقفولة بكلمة سر 2026) -->
+    <!-- 3. لوحة تحكم الأدمن -->
     <div class="admin-link" onclick="toggleAdmin()">⚙️ إدارة وتوليد الأكواد (خاص بالمدير)</div>
 
     <div class="card" id="adminCard" style="display:none; margin-top:14px; border-color:var(--accent);">
@@ -290,6 +323,15 @@
     let activeSession = null;
     let timerInterval = null;
     let base64ImgData = null;
+
+    function checkCustomDevice(val) {
+      const box = document.getElementById('customDeviceBox');
+      if (val === 'CUSTOM_DEVICE') {
+        box.style.display = 'block';
+      } else {
+        box.style.display = 'none';
+      }
+    }
 
     function loginClient() {
       const code = document.getElementById('inputCode').value.trim().toUpperCase();
@@ -391,30 +433,46 @@
       }
     }
 
-    // التحليل بالذكاء الاصطناعي
+    // فحص وتحليل الإشارة
     async function runAnalysis() {
-      const device = document.getElementById('deviceType').value;
+      let device = document.getElementById('deviceType').value;
+      if (device === 'CUSTOM_DEVICE') {
+        const customName = document.getElementById('customDeviceInput').value.trim();
+        device = customName ? customName : "جهاز مخصص غير محدد";
+      }
+
       const soil = document.getElementById('soilType').value;
       const notes = document.getElementById('notes').value.trim();
       const resultCard = document.getElementById('resultCard');
+      const resultTitle = document.getElementById('resultTitle');
       const resultBody = document.getElementById('resultBody');
       const apiKey = localStorage.getItem('GEOSCAN_API_KEY') || "";
 
+      resultCard.className = "result-card";
       resultCard.style.display = 'block';
-      resultBody.innerHTML = "⏳ جاري فحص الإشارة ومطابقتها جيوفيزيائياً بالذكاء الاصطناعي...";
+      resultTitle.innerText = "⏳ جاري الفحص الجيوفيزيائي الصادق...";
+      resultBody.innerHTML = "جاري الاتصال بنموذج الذكاء الاصطناعي لفحص المخطط بدقة وأمانة علمية...";
 
       if (apiKey && base64ImgData) {
         try {
           const rawBase64 = base64ImgData.split(',')[1];
           const mimeType = base64ImgData.split(';')[0].split(':')[1];
 
-          const promptText = `أنت خبير جيوفيزيائي أول متخصص في تحليل مخططات وأجهزة الكشف ثلاثية الأبعاد (OKM, ERT, GPR, Nokta). 
-الجهاز المستخدم: ${device}. 
-طبيعة الأرض: ${soil}. 
-ملاحظات وقراءات الميدان: ${notes || "لا توجد ملاحظات إضافية"}.
-قم بتحليل الصورة المرفقة تحليلاً علمياً دقيقاً، وفك رموز الألوان والشذوذ، وتحديد الاحتمال (معدن ثمين، فراغ هندسي/سرداب، حجر معدني ممغنط، أو رطوبة ومياه جوفية)، مع إعطاء عمق تقريبي وتوصية هندسية واضحة للخطوة القادمة. كن دقيقاً ومهنياً.`;
+          const promptText = `أنت خبير جيوفيزيائي ميداني محترف، تعمل بمبدأ الصدق التام والأمانة العلمية الصارمة بدون أي تضليل أو مبالغة.
+معطيات المسح:
+- الجهاز المستخدم: ${device}.
+- طبيعة التربة: ${soil}.
+- ملاحظات الحقل: ${notes || "لا توجد ملاحظات إضافية"}.
 
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+التعليمات الصارمة:
+1. تحقق أولاً من الصورة المرفقة: إذا كانت لقطة شاشة عادية (مثل قائمة هاتف، محادثة، صورة شخصية) وليست مخطط جهاز كشف أو مسح أرضي، ابدأ تقريرك بـ: "⚠️ تنبيه صادق: الصورة المرفقة لا تحتوي على أي مخطط مسح أو شاشة جهاز كشف صالحة للتحليل، يرجى رفع صورة واضحة من شاشة الجهاز أو المخطط البياني".
+2. إذا كانت الصورة فعلاً لمخطط مسح أو شاشة جهاز:
+- اذكر الجهاز وطبيعة التضاريس.
+- حلل توزيع الألوان (الأحمر، الأزرق، الأخضر) والشذوذ الفيزيائي بواقعية تامة.
+- وضّح الاحتمالات العلمية بأمانة (فراغ، صخور متمعدنة، رطوبة، أو شذوذ معدني).
+- أرفق التوصية الميدانية الصحيحة للتأكد قبل بذل أي مجهود حفر.`;
+
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -429,22 +487,22 @@
 
           const data = await response.json();
           if (data.candidates && data.candidates[0].content.parts[0].text) {
-            resultBody.innerHTML = data.candidates[0].content.parts[0].text;
+            const reply = data.candidates[0].content.parts[0].text;
+            resultTitle.innerText = "📊 التقرير الجيوفيزيائي الاستشاري:";
+            resultBody.innerHTML = reply;
             return;
           }
         } catch (e) {
-          console.error("API error, fallback to expert rule base", e);
+          console.error("API error", e);
         }
       }
 
-      // التحليل الاحتياطي الذكي في حالة عدم توفر API أو صورة
+      // في حال عدم توفر مفتاح أو صورة صالحة
       setTimeout(() => {
-        resultBody.innerHTML = `✅ <b>الجهاز المحدد:</b> ${device}\n` +
-          `🌍 <b>طبيعة التضاريس:</b> ${soil}\n` +
-          `🔍 <b>التشخيص الميداني:</b> تم رصد شذوذ هندسي عالي التباين (Geometric Anomaly) مع عزل ملحوظ في الطبقات التحتية.\n` +
-          `📈 <b>التقييم الجيوفيزيائي:</b> احتمالية عالية لفراغ صنعي أو جدران مطمورة نظراً لانتظام حدود الإشارة ومقاومتها العالية.\n` +
-          `🎯 <b>التوصية الميدانية:</b> قم بمسح متعامد بزاوية 90° على مسافة متر واحد لتحديد نقطة الصفر (Center Point) والتأكد من استمرارية الجدران.`;
-      }, 1500);
+        resultCard.className = "result-card warning-mode";
+        resultTitle.innerText = "⚠️ تنبيه المصداقية:";
+        resultBody.innerHTML = `يرجى إدخال مفتاح الذكاء الاصطناعي ورفع صورة واضحة لشاشة الجهاز ليتمكن النظام من تقديم استشارة جيوفيزيائية صادقة ومبنية على فحص حقيقي للصورة المرفقة.`;
+      }, 1000);
     }
 
     function toggleAdmin() {
